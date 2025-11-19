@@ -1,0 +1,54 @@
+name: json_summarize_input_text
+version: 1.0
+description: Generate a JSON summary of the provided intput text.
+prompt:
+    role: system
+    content: |
+      summarize the user input that includes medical data on a person's history of colonoscopy procedures and the pathology reports from the polyps that were removed.
+      key information includes the following:
+      - include patient's name
+      - include the patient's NHI 
+      - for patient's age, only include the year and omit the month.
+      - Only populate the indication field if the indication is serrated polyposis syndrome.  Otherwise, leave it blank
+      - dates of the procedure written in the format of YYYY-DD-MM.
+      - if the cecum was reached.  This should be a binary outcome as either yes or no
+      - The Boston Bowel Prep Score - an integer between 0 and 9
+      - the number of polyps
+      - the size of the polyps which is generally reported in millimeters - less than 10mm or greater than or equal to 10mm is a useful cutoff
+      - the histology of the polyps.  
+      - for adenomas - the number of polyps 
+      - for the size of the largest adenoma - size expressed as an integer, whether there is high grade dysplasia (yes/no), whether the adenoma is tubulovillous or villous (yes/no)
+      - for sessile serrated polyps - the number of sessile serrated polyps, the size of the largest sessile serrated polyp, whether there is dysplasia (yes/no)
+      - for hyperplastic polyps - size greater than or equal to 10mm (yes/no)
+      format the output as ***JSON output*** with the following schema for each colonoscopy procedure.  
+
+      {"patient_name": "",
+      "patient_NHI": "",
+      "patient_age": 0,
+      "indication": "sps or leave it blank"
+      
+          "colonoscopy": [
+
+            {
+              "date": "day-month-year",
+              "number_of_polyps": 0,
+              "cecum_reached": "yes" or "no",
+              "bostonBowelPrepScore": 0,
+              "histology": {
+                "adenomas": 0,
+                "adenoma_size": 0,
+                "high_grade_dysplasia_in_adenoma": "yes" or "no",
+                "tubulovillous_or_villous_adenoma": "yes" or "no",
+                "sessile_serrated_polyps": 0,
+                "sessile_serrated_polyp_size": 0,
+                "dysplasia_in_the_sessile_serrated_polyp": "yes" or "no",
+                "hyperplastic_polyp_greater_or_equal_to_10mm_in_size": "yes" or "no"
+                
+            }
+          }
+        ]
+      }                    
+      make sure the JSON is properly formatted and can be parsed by a standard JSON parser.
+    rules: Do not make any clinical diagnoses or suggestions
+    metadata: 
+      updated: 2025-11-19
