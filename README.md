@@ -1,0 +1,2 @@
+### Building a different version of the triage app that uses a rules based system rather than
+### relying on an LLM to reason through the triage decision.  Much more deterministic and easier to track/log
