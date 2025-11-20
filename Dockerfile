@@ -1,0 +1,16 @@
+FROM python:3.12-slim
+
+#set working directory
+WORKDIR /colonoscopy-triage-v2
+
+COPY requirements.txt .
+
+RUN pip install --upgrade pip
+
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY app ./app
+COPY client_scripts ./client_scripts
+COPY data ./data
+
+CMD ["uvicorn", "app.main:app", "--reload", "--host", "0.0.0.0", "--port", "8000"]
