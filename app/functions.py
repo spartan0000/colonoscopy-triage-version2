@@ -15,7 +15,7 @@ import random
 import logging
 from datetime import datetime
 
-from clients import chat_client, embedding_client
+from app.clients import chat_client, embedding_client
 
 load_dotenv()
 
@@ -144,6 +144,25 @@ def triage(data: dict):
         return outcome
     else:
         return outcome
+
+
+class JSONFormatter(logging.Formatter):
+    def format(self, record):
+        log_record = {
+            'timestamp': self.formatTime(record),
+            'level': record.levelname,
+            'messages': record.getMessage()
+        }
+        if hasattr(record, 'extra_data'):
+            log_record['extra'] = record.extra_data
+        return json.dumps(log_record)
+    
+logger = logging.getLogger('api_logger')
+logger.setLevel(logging.INFO)
+handler = logging.StreamHandler()
+handler.setFormatter(JSONFormatter())
+logger.addHandler(handler)
+logger.propagate = False
 
 
 

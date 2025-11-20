@@ -21,9 +21,7 @@ with open(report_file, 'r', encoding = 'utf-8') as f:
 
 
 
-test_url_rec = 'http://localhost:8000/recommend'
-test_url_summary = 'http://localhost:8000/summarize'
-test_url_json_summary = 'http://localhost:8000/json_summary'
+api_url = 'http://127.0.0.1:8000/triage'
 
 
 async def send_request(report_text: str, api_url: str):
@@ -47,14 +45,8 @@ async def send_request(report_text: str, api_url: str):
 
 async def main():
 
-    response_recommendation = await send_request(report, test_url_rec)
-    json_summary = await send_request(report, test_url_json_summary)
-    summary = await send_request(report, test_url_summary) #we just want summary in json format because it returns both a text summary and a json summary
-    
-    print(f'Summary Response: {summary}\n')
-    print(f'JSON Summary Response: {json_summary}\n')
-    print(f'Recommendation Response: {response_recommendation['recommendation']}')
-
+    output = await send_request(report, api_url)
+    print(output)
 
 if __name__ == '__main__':
     asyncio.run(main())
