@@ -120,58 +120,64 @@ def triage(data: dict):
 
  
     #3 years
-    elif size_ssl >=10:
-        outcome = {'follow_up': 3, 'rule': 'rule_5', 'reason': 'SSL >= 10mm'}
-    elif dysplastic_ssl == 'yes':
-        outcome = {'follow_up': 3, 'rule': 'rule_6', 'reason': 'SSL with dysplasia'}
-    elif size_adenoma >= 10:
-        outcome = {'follow_up': 3, 'rule': 'rule_7', 'reason': 'Adenoma >= 10mm'}
-    elif tva == 'yes':
-        outcome = {'follow_up': 3, 'rule': 'rule_8', 'reason': 'Tubulovillous or villous adenoma'}
-    elif hgd_adenoma == 'yes':
-        outcome = {'follow_up': 3, 'rule': 'rule_9', 'reason': 'Adenoma with HGD'}
-    elif n_adenoma == 0 and n_ssl >= 5 and size_ssl < 10:
-        outcome = {'follow_up': 3, 'rule': 'rule_10', 'reason': '5 or more SSL all less than 10mm, no other polyps, no high risk features'}
-    elif n_ssl == 0 and 5 <= n_adenoma <= 9 and size_adenoma < 10 and hgd_adenoma == 'no':
-        outcome = {'follow_up': 3, 'rule': 'rule_11', 'reason': '5-9 adenomas with no high risk features and no SSL'}
-    elif n_ssl > 0 and n_adenoma > 0 and 5 <= total_polyps <= 9:
-        outcome = {'follow_up': 3, 'rule': 'rule_12', 'reason': '5-9 combined adenomas and SSL'}
-    elif hp_large == 'yes':
-        outcome = {'follow_up': 3, 'rule': 'rule_13', 'reason': 'Hyperplastic polyp >= 10mm'}
+    if size_ssl >=10:
+        return {'follow_up': 3, 'rule': 'rule_5', 'reason': 'SSL >= 10mm'}
+    if dysplastic_ssl == 'yes':
+        return {'follow_up': 3, 'rule': 'rule_6', 'reason': 'SSL with dysplasia'}
+    if size_adenoma >= 10:
+        return {'follow_up': 3, 'rule': 'rule_7', 'reason': 'Adenoma >= 10mm'}
+    if tva == 'yes':
+        return {'follow_up': 3, 'rule': 'rule_8', 'reason': 'Tubulovillous or villous adenoma'}
+    if hgd_adenoma == 'yes':
+        return {'follow_up': 3, 'rule': 'rule_9', 'reason': 'Adenoma with HGD'}
+    if n_adenoma == 0 and n_ssl >= 5 and size_ssl < 10:
+        return {'follow_up': 3, 'rule': 'rule_10', 'reason': '5 or more SSL all less than 10mm, no other polyps, no high risk features'}
+    if n_ssl == 0 and 5 <= n_adenoma <= 9 and size_adenoma < 10 and hgd_adenoma == 'no':
+        return {'follow_up': 3, 'rule': 'rule_11', 'reason': '5-9 adenomas with no high risk features and no SSL'}
+    if n_ssl > 0 and n_adenoma > 0 and 5 <= total_polyps <= 9:
+        return {'follow_up': 3, 'rule': 'rule_12', 'reason': '5-9 combined adenomas and SSL'}
+    if hp_large == 'yes':
+        return {'follow_up': 3, 'rule': 'rule_13', 'reason': 'Hyperplastic polyp >= 10mm'}
     
 
 
     #5 years
-    elif n_ssl == 0 and 3 <= n_adenoma <= 4 and size_adenoma < 10 and hgd_adenoma == 'no':
-        outcome = {'follow_up': 5, 'rule': 'rule_14', 'reason': '3-4 adenomas, no SSL, no high risk features'}
+    if n_ssl == 0 and 3 <= n_adenoma <= 4 and size_adenoma < 10 and hgd_adenoma == 'no':
+        return {'follow_up': 5, 'rule': 'rule_14', 'reason': '3-4 adenomas, no SSL, no high risk features'}
     
-    elif 1 <= n_ssl <= 4 and size_ssl < 10 and n_adenoma == 0:
-        outcome = {'follow_up': 5, 'rule': 'rule_15', 'reason': '1-4 SSL < 10mm no dysplasia no other polyps'}
+    if 1 <= n_ssl <= 4 and size_ssl < 10 and n_adenoma == 0:
+        return {'follow_up': 5, 'rule': 'rule_15', 'reason': '1-4 SSL < 10mm no dysplasia no other polyps'}
     
-    elif n_ssl > 0 and total_polyps <= 4 and size_ssl < 10 and size_adenoma < 10:
-        outcome = {'follow_up': 5, 'rule': 'rule_16', 'reason': 'Adenoma and SSL present, less than 5 total polyps, no high risk features'}
+    if n_ssl > 0 and total_polyps <= 4 and size_ssl < 10 and size_adenoma < 10:
+        return {'follow_up': 5, 'rule': 'rule_16', 'reason': 'Adenoma and SSL present, less than 5 total polyps, no high risk features'}
     
 
     #10 years
 
-    elif n_ssl == 0 and 0 < n_adenoma < 3 and size_adenoma < 10 and hgd_adenoma == 'no':
-        outcome = {'follow_up': 10, 'rule': 'rule_17', 'reason': '1-2 adenomas less than 10mm no hgd'}
-    elif n_ssl == 0 and n_adenoma == 0:
-        outcome = {'follow_up': 10, 'rule': 'rule_18', 'reason': 'No polyps'}
+    if n_ssl == 0 and 0 < n_adenoma < 3 and size_adenoma < 10 and hgd_adenoma == 'no':
+        return {'follow_up': 10, 'rule': 'rule_17', 'reason': '1-2 adenomas less than 10mm no hgd'}
+    if n_ssl == 0 and n_adenoma == 0:
+        return {'follow_up': 10, 'rule': 'rule_18', 'reason': 'No polyps'}
     
     #if no criteria met, refer for human review
     else:
-        outcome = {'follow_up': 0, 'rule': 'rule_19', 'reason': 'No criteria met, needs human review'}
+        return {'follow_up': 0, 'rule': 'rule_19', 'reason': 'No criteria met, needs human review'}
 
+def age_out(data: dict, outcome: dict):
     #see if the patient will age out
+    patient_age = data['patient_age']
     follow_up = outcome['follow_up']
-    if follow_up is not None and follow_up + patient_age > 75:
-        outcome = {'follow_up': 0, 'rule': 'rule_20', 'reason': 'Patient aged out'}
-        return outcome
+    if follow_up is not None and follow_up != 0 and follow_up + patient_age > 75:
+        return {'follow_up': 20, 'rule': 'rule_20', 'reason': 'Patient aged out'}
+        
     else:
         return outcome
 
 
+
+def triage_with_age_out(data, outcome):
+    outcome = triage(data)
+    return age_out(data, outcome)
 
 
 
@@ -180,9 +186,11 @@ def triage(data: dict):
 async def main():
     with open(DATA_PATH / 'sample_patient_report_1.txt', 'r', encoding = 'utf-8') as f:
         report = f.read()
-    output = await format_query_json(report)
-    recommendation = triage(output)
-    print(f'Given this data\n {output}\n\n The recommendation is: {recommendation}')
+    data = await format_query_json(report)
+    recommendation = triage(data)
+
+    final = triage_with_age_out(data, recommendation)
+    print(f'Given this data\n {data}\n\n The recommendation is: {final}')
     
 
 if __name__ == '__main__':

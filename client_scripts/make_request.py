@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 import asyncio
 from pathlib import Path
 
-from human_key import HUMAN_LABELS
+from client_scripts.human_key import HUMAN_LABELS
 
 load_dotenv()
 
@@ -51,6 +51,7 @@ def accuracy(human, model):
 
     year_incorrect = []
     rule_incorrect = []
+    need_human = []
 
     for item in human:
         cid = item['case']
@@ -64,11 +65,13 @@ def accuracy(human, model):
         else:
             rule_incorrect.append({'case': cid, 'human': item['rule'], 'model': rec['rule']})
         
+        if rec['follow_up'] == 0:
+            need_human.append({'case': cid, 'model': rec['rule']})
         total += 1
     year_accuracy = year_correct/total
     rule_accuracy = rule_correct/total
 
-    return year_accuracy, rule_accuracy, year_incorrect, rule_incorrect
+    return year_accuracy, rule_accuracy, year_incorrect, rule_incorrect, need_human
 
 
 async def main():
@@ -83,12 +86,14 @@ async def main():
         recommendation = output['recommendation']
 
         model_outputs[f'{i:03}'] = recommendation
+        print(f'{i+1} report(s) processed')
 
-    #year, rule, y_incorrect, r_incorrect = accuracy(HUMAN_LABELS, model_outputs)
+    year, rule, y_incorrect, r_incorrect, need_human = accuracy(HUMAN_LABELS, model_outputs)
 
-    #print(f'Year_accuracy: {year} | Rule_accuracy: {rule}')
-    #print(f'Incorrect year cases: \n {y_incorrect}\n')
-    #print(f'Incorrect rule cases: \n {r_incorrect}\n')
+    print(f'Year_accuracy: {year} | Rule_accuracy: {rule}')
+    print(f'Incorrect year cases: \n {y_incorrect}\n')
+    print(f'Incorrect rule cases: \n {r_incorrect}\n')
+    print(f'These were identified as needing human review:\n {need_human}')
 
     print(model_outputs)
 

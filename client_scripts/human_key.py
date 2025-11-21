@@ -6,7 +6,7 @@ HUMAN_LABELS = [
     },
     {
         'case': '001',
-        'follow_up': 0,
+        'follow_up': 20,
         'rule': 'rule_20'
     },
     {
@@ -36,7 +36,7 @@ HUMAN_LABELS = [
     },
     {
         'case': '007',
-        'follow_up': 0,
+        'follow_up': 20,
         'rule': 'rule_20'
     },
     {
@@ -56,7 +56,7 @@ HUMAN_LABELS = [
     },
     {
         'case': '011',
-        'follow_up': 0,
+        'follow_up': 20,
         'rule': 'rule_20'
     },
     {
@@ -71,12 +71,12 @@ HUMAN_LABELS = [
     },
     {
         'case': '014',
-        'follow_up': 0,
+        'follow_up': 20,
         'rule': 'rule_20'
     },
     {
         'case': '015',
-        'follow_up': 0,
+        'follow_up': 20,
         'rule': 'rule_20'
     },
     {
@@ -86,7 +86,7 @@ HUMAN_LABELS = [
     },
     {
         'case': '017',
-        'follow_up': 0,
+        'follow_up': 20,
         'rule': 'rule_20'
     },
     {
@@ -101,7 +101,7 @@ HUMAN_LABELS = [
     },
     {
         'case': '020',
-        'follow_up': 0,
+        'follow_up': 20,
         'rule': 'rule_20'
     },
     {
@@ -127,7 +127,7 @@ HUMAN_LABELS = [
     },
     {
         'case': '025',
-        'follow_up': 0,
+        'follow_up': 20,
         'rule': 'rule_20'
     },
     {

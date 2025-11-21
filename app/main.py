@@ -9,7 +9,7 @@ import sys
 
 load_dotenv()
 
-from app.functions import format_query_json, triage
+from app.functions import format_query_json, triage, age_out, triage_with_age_out
 from app.logging_config import setup_logging
 
 logger = setup_logging()
@@ -33,6 +33,7 @@ async def recommend(request: UserInput):
     user_query = request.user_query
     json_summary = await format_query_json(user_query)
     recommendation = triage(json_summary)
+    final = triage_with_age_out(json_summary, recommendation)
 
     logger.info("User input received and recommendation generated", 
                 extra = {
@@ -45,7 +46,7 @@ async def recommend(request: UserInput):
 
     )
 
-    return {'user_input': json_summary, 'recommendation': recommendation}
+    return {'user_input': json_summary, 'recommendation': final}
 
 
     
