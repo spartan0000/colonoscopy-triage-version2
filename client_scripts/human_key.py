@@ -3,7 +3,7 @@ HUMAN_LABELS = [
         'case': '000',
         'follow_up': 10,
         'rule': 'rule_17'
-    }
+    },
     {
         'case': '001',
         'follow_up': 0,
