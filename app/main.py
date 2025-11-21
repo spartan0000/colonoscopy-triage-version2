@@ -9,7 +9,10 @@ import sys
 
 load_dotenv()
 
-from app.functions import format_query_json, triage, logger
+from app.functions import format_query_json, triage
+from app.logging_config import setup_logging
+
+logger = setup_logging()
 
 app = FastAPI(title = 'Colonoscopy triage API')
 
