@@ -32,7 +32,7 @@ async def format_query_json(user_query: str) -> dict:
             config = yaml.safe_load(f)
         except yaml.YAMLError as e:
             raise Exception(f'Error loading YAML prompt file: {e}')
-        system_prompt = f'{config['prompt']['content']}'
+        system_prompt = f"{config['prompt']['content']}"
         if 'rules' in config:
             rules_text = '\nRules:\n' + '\n'.join(f'- {rule}' for rule in config['rules'])
             system_prompt = f'{system_prompt}\n{rules_text}'

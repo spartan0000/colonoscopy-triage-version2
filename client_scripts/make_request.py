@@ -16,14 +16,10 @@ DATA_PATH = BASE / 'data' / 'sample_reports'
 
 n_files = len(os.listdir(DATA_PATH))
 
-#report_file = DATA_PATH / 'sample_patient_report_6.txt'
 
-#with open(report_file, 'r', encoding = 'utf-8') as f:
-#    report = f.read()
-
-
-
-api_url = 'http://127.0.0.1:8000/triage'
+api_url = 'http://localhost:8000/triage'
+base_url = os.getenv('AZURE_APP_ENDPOINT')
+azure_url = f'{base_url}/triage'
 
 
 async def send_request(report_text: str, api_url: str):
@@ -82,7 +78,7 @@ async def main():
         with open(report_path, 'r', encoding = 'utf-8') as f:
             report = f.read()
 
-        output = await send_request(report, api_url)
+        output = await send_request(report, azure_url)
         recommendation = output['recommendation']
 
         model_outputs[f'{i:03}'] = recommendation
