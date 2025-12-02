@@ -89,22 +89,46 @@ rules_dict = {
 }
 
 
+
+
 def triage(data: dict):
+    n_adenoma = 0
+    max_adenoma = 0
+    hgd_adenoma = False
+    n_ssl = 0
+    max_ssl = 0
+    dysplastic_ssl = False
+    n_hyperplastic = 0
+    max_hyperplastic = 0
+
+    tva = False
+    
+    
     follow_up = None
     patient_age = data['patient_age']
     indication = data.get('indication', '')
     total_polyps = data['colonoscopy'][0]['number_of_polyps']
     cecum = data['colonoscopy'][0]['cecum_reached']
     bbps = data['colonoscopy'][0]['bostonBowelPrepScore']
-    hist = data['colonoscopy'][0]['histology']
-    n_adenoma = hist['adenomas']
-    size_adenoma = hist['adenoma_size']
-    hgd_adenoma = hist['high_grade_dysplasia_in_adenoma']
-    tva = hist['tubulovillous_or_villous_adenoma']
-    n_ssl = hist['sessile_serrated_polyps']
-    size_ssl = hist['sessile_serrated_polyp_size']
-    dysplastic_ssl = hist['dysplasia_in_the_sessile_serrated_polyp']
-    hp_large = hist['hyperplastic_polyp_greater_or_equal_to_10mm_in_size']
+    if data['colonoscopy'][0]['polyps']:
+        polyps = data['colonoscopy'][0]['polyps']
+        for polyp in polyps:
+            if polyp['type'] == 'adenoma':
+                n_adenoma += 1
+                max_adenoma = max(max_adenoma, polyp['size'])
+                if polyp['dysplasia'] == 'high_grade':
+                    hgd_adenoma = True
+            elif polyp['type'] == 'sessile_serrated_polyp':
+                n_ssl += 1
+                max_ssl = max(max_ssl, polyp['size'])
+                if polyp['dysplasia'] in ['low_grade', 'high_grade']:
+                    dysplastic_ssl = True
+            elif polyp['type'] == 'hyperplastic_polyp':
+                n_hyperplastic += 1
+                max_hyperplastic = max(max_hyperplastic, polyp['size'])
+            elif polyp['type'] == 'tubulovillous_or_villous_adenoma':
+                tva = True        
+        
 
     #need human review - these all have a return statement so that no other criteria are triggered further down the line
     #for now, have follow up value of 0 represent needing human review
@@ -120,41 +144,41 @@ def triage(data: dict):
 
  
     #3 years
-    if size_ssl >=10:
+    if max_ssl >=10:
         return {'follow_up': 3, 'rule': 'rule_5', 'reason': 'SSL >= 10mm'}
-    if dysplastic_ssl == 'yes':
+    if dysplastic_ssl == True:
         return {'follow_up': 3, 'rule': 'rule_6', 'reason': 'SSL with dysplasia'}
-    if size_adenoma >= 10:
+    if max_adenoma >= 10:
         return {'follow_up': 3, 'rule': 'rule_7', 'reason': 'Adenoma >= 10mm'}
-    if tva == 'yes':
+    if tva == True:
         return {'follow_up': 3, 'rule': 'rule_8', 'reason': 'Tubulovillous or villous adenoma'}
-    if hgd_adenoma == 'yes':
+    if hgd_adenoma == True:
         return {'follow_up': 3, 'rule': 'rule_9', 'reason': 'Adenoma with HGD'}
-    if n_adenoma == 0 and n_ssl >= 5 and size_ssl < 10:
+    if n_adenoma == 0 and n_ssl >= 5 and max_ssl < 10:
         return {'follow_up': 3, 'rule': 'rule_10', 'reason': '5 or more SSL all less than 10mm, no other polyps, no high risk features'}
-    if n_ssl == 0 and 5 <= n_adenoma <= 9 and size_adenoma < 10 and hgd_adenoma == 'no':
+    if n_ssl == 0 and 5 <= n_adenoma <= 9 and max_adenoma < 10 and hgd_adenoma == False:
         return {'follow_up': 3, 'rule': 'rule_11', 'reason': '5-9 adenomas with no high risk features and no SSL'}
     if n_ssl > 0 and n_adenoma > 0 and 5 <= total_polyps <= 9:
         return {'follow_up': 3, 'rule': 'rule_12', 'reason': '5-9 combined adenomas and SSL'}
-    if hp_large == 'yes':
+    if max_hyperplastic >= 10:
         return {'follow_up': 3, 'rule': 'rule_13', 'reason': 'Hyperplastic polyp >= 10mm'}
     
 
 
     #5 years
-    if n_ssl == 0 and 3 <= n_adenoma <= 4 and size_adenoma < 10 and hgd_adenoma == 'no':
+    if n_ssl == 0 and 3 <= n_adenoma <= 4 and max_adenoma < 10 and hgd_adenoma == False:
         return {'follow_up': 5, 'rule': 'rule_14', 'reason': '3-4 adenomas, no SSL, no high risk features'}
     
-    if 1 <= n_ssl <= 4 and size_ssl < 10 and n_adenoma == 0:
+    if 1 <= n_ssl <= 4 and max_ssl < 10 and n_adenoma == 0:
         return {'follow_up': 5, 'rule': 'rule_15', 'reason': '1-4 SSL < 10mm no dysplasia no other polyps'}
     
-    if n_ssl > 0 and total_polyps <= 4 and size_ssl < 10 and size_adenoma < 10:
+    if n_ssl > 0 and total_polyps <= 4 and max_ssl < 10 and max_adenoma < 10:
         return {'follow_up': 5, 'rule': 'rule_16', 'reason': 'Adenoma and SSL present, less than 5 total polyps, no high risk features'}
     
 
     #10 years
 
-    if n_ssl == 0 and 0 < n_adenoma < 3 and size_adenoma < 10 and hgd_adenoma == 'no':
+    if n_ssl == 0 and 0 < n_adenoma < 3 and max_adenoma < 10 and hgd_adenoma == False:
         return {'follow_up': 10, 'rule': 'rule_17', 'reason': '1-2 adenomas less than 10mm no hgd'}
     if n_ssl == 0 and n_adenoma == 0:
         return {'follow_up': 10, 'rule': 'rule_18', 'reason': 'No polyps'}

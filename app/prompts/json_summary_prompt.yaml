@@ -40,7 +40,7 @@ prompt:
               {
                 "location": "cecum or ascending_colon or transverse_colon or descending_colon or sigmoid_colon or rectum,
                 "size": integer in millimeters,
-                "histology": "adenoma or tubulovillous_or_villous_adenoma or sessile_serrated_polyp or hyperplastic_polyp",
+                "type": "adenoma or tubulovillous_or_villous_adenoma or sessile_serrated_polyp or hyperplastic_polyp or normal_colonic_mucosa",
                 "dysplasia": "none or low_grade or high_grade",
                 "resection": "complete or piecemeal or not_resected or unknown",
                 "retrieval": "complete or incomplete or unknown",
