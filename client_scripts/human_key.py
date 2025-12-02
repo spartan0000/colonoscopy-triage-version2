@@ -1,8 +1,8 @@
 HUMAN_LABELS = [
     {
         'case': '000',
-        'follow_up': 10,
-        'rule': 'rule_17'
+        'follow_up': 5,
+        'rule': 'rule_14'
     },
     {
         'case': '001',
