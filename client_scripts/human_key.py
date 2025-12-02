@@ -160,7 +160,11 @@ HUMAN_LABELS = [
         'follow_up': 0,
         'rule': 'rule_2'
     },
-    
+    {
+        'case': '032',
+        'follow_up': 0,
+        'rule': 'rule_2'
+    },
 ]
 
 

@@ -134,7 +134,7 @@ def triage(data: dict):
     #for now, have follow up value of 0 represent needing human review
     if cecum == 'no':
         return {'follow_up': 0, 'rule': 'rule_1', 'reason': 'Cecum not reached'}
-    if bbps < 6:
+    if bbps['total'] < 6 or bbps['right'] < 2 or bbps['transverse'] < 2 or bbps['left'] < 2:
         return {'follow_up': 0, 'rule': 'rule_2', 'reason':'Inadequate prep'}
     if indication == 'sps': 
         return {'follow_up': 0, 'rule': 'rule_3', 'reason': 'Serrated polyposis syndrome'}

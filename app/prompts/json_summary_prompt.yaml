@@ -12,7 +12,7 @@ prompt:
       - Only populate the indication field if the indication is serrated polyposis syndrome.  Otherwise, leave it blank
       - dates of the procedure written in the format of YYYY-DD-MM.
       - if the cecum was reached.  This should be a binary outcome as either yes or no
-      - The Boston Bowel Prep Score - an integer between 0 and 9
+      - The Boston Bowel Prep Score - an integer between 0 and 9 representing the total score and then individual scores for each of the segments right colon, transverse colon and left colon
 
       - for each polyp that was removed, include the following information in a separate dictionary:
       - location of the polyp - possible locations include cecum, ascending colon, transverse colon, descending colon, sigmoid colon, rectum
@@ -35,7 +35,11 @@ prompt:
               "date": "day-month-year",
               "number_of_polyps": 0,
               "cecum_reached": "yes" or "no",
-              "bostonBowelPrepScore": 0,
+              "bostonBowelPrepScore": {"total": integer representing the total score,
+                                        "right": integer representing the score for the right colon,
+                                        "transverse": integer representing the score for the transverse colon,
+                                        "left": integer representing the score for the left colon
+                                        },
               "polyps": [
               {
                 "location": "cecum or ascending_colon or transverse_colon or descending_colon or sigmoid_colon or rectum,
