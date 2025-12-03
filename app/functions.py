@@ -85,7 +85,8 @@ rules_dict = {
     'rule_17': '1-2 adenomas less than 10mm no hgd',
     'rule_18': 'No polyps',
     'rule_19': 'No criteria met, needs human review',
-    'rule_20': 'Patient aged out'
+    'rule_20': 'Patient aged out',
+    'rule_21': 'Incomplete/piecemeal resection or incomplete retrieval'
 }
 
 
@@ -102,7 +103,8 @@ def triage(data: dict):
     max_hyperplastic = 0
 
     tva = False
-    
+    incomplete_resection = False
+    incomplete_retrieval = False
     
     follow_up = None
     patient_age = data['patient_age']
@@ -128,7 +130,10 @@ def triage(data: dict):
                 max_hyperplastic = max(max_hyperplastic, polyp['size'])
             elif polyp['type'] == 'tubulovillous_or_villous_adenoma':
                 tva = True        
-        
+            if polyp['resection'] != 'complete':
+                incomplete_resection = True
+            if polyp['retrieval'] != 'complete':
+                incomplete_retrieval = True
 
     #need human review - these all have a return statement so that no other criteria are triggered further down the line
     #for now, have follow up value of 0 represent needing human review
@@ -141,7 +146,9 @@ def triage(data: dict):
     #this seems like something a human should look at
     if n_adenoma >= 10:
         return {'follow_up': 0, 'rule': 'rule_4', 'reason': 'Greater than 10 adenomatous polyps'}
-
+    #incomplete resection or retrieval
+    if incomplete_resection == True or incomplete_retrieval == True:
+        return {'follow_up': 0, 'rule': 'rule_21', 'reason': 'Incomplete/piecemeal resection or incomplete retrieval'}
  
     #3 years
     if max_ssl >=10:
