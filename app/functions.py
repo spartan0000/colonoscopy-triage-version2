@@ -16,7 +16,7 @@ import logging
 from logging.handlers import RotatingFileHandler
 from datetime import datetime
 
-from app.clients import chat_client, embedding_client
+from app.clients import chat_client, hnz_client
 
 load_dotenv()
 
@@ -41,8 +41,8 @@ async def format_query_json(user_query: str) -> dict:
 
     user_prompt = f'Please format this medical text into structured JSON output - {user_query}'
 
-    response1 = await chat_client.responses.create(
-        model = 'gpt-5-mini',
+    response1 = await hnz_client.responses.create(
+        model = 'gpt-4-1',
         text = {'format': {'type': 'json_object'}},
         input = [
             {
