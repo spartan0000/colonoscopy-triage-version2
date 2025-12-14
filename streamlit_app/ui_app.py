@@ -28,9 +28,10 @@ st.write("Please enter the colonoscopy report and the associated histology repor
 if 'report_input' not in st.session_state:
     st.session_state.report_input = ''
 
-user_input = st.text_input("Enter colonoscopy and histology reports as single text input here:",
+user_input = st.text_area("Enter colonoscopy and histology reports as single text input here:",
                            key = 'report_input',
-                           value = st.session_state.report_input)
+                           value = st.session_state.report_input,
+                           height = 400)
                            
 def clear_text():
     st.session_state.report_input = ''
