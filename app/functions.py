@@ -64,6 +64,23 @@ async def format_query_json(user_query: str) -> dict:
         return result_json
     except json.JSONDecodeError:
         return {'error': 'Failed to parse JSON', 'raw_output': response1.output_text}
+    
+async def send_request(report_text: str, api_url: str):
+    '''
+    Sends a free text report to the API endpoint and returns a recommendation based on the report and database contents
+    '''
+
+    data = {'user_query': report_text}
+    headers = {
+        'x-api-key': os.getenv('MY_API_KEY')
+    }
+
+    response = requests.post(api_url, json = data, headers = headers)
+
+    if response.status_code == 200:
+        return response.json()
+    else:
+        raise Exception(f'API request failed with status code {response.status_code}: {response.text}')
 
 rules_dict = {
     'rule_1': 'Cecum not reached',
@@ -204,9 +221,10 @@ def age_out(data: dict, outcome: dict):
     #see if the patient will age out
     patient_age = data['patient_age']
     follow_up = outcome['follow_up']
-    if follow_up['rule'] in ['rule_5', 'rule_6', 'rule_7', 'rule_8', 'rule_9'] and patient_age <= 75: #high risk polyps can rescope up to age 78
+    rule = outcome['rule']
+    if rule in ['rule_5', 'rule_6', 'rule_7', 'rule_8', 'rule_9'] and patient_age <= 75: #high risk polyps can rescope up to age 78
         return outcome
-    elif follow_up is not None and follow_up != 0 and follow_up + patient_age > 75:
+    if follow_up is not None and follow_up != 0 and follow_up + patient_age > 75:
         return {'follow_up': 20, 'rule': 'rule_20', 'reason': 'Patient aged out'}
     
     else:
