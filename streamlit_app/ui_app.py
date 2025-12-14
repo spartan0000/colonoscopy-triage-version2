@@ -25,8 +25,15 @@ azure_url = f'{base_url}/triage'
 st.title("Colonoscopy Surveillance Triage Tool")
 st.write("This tool provides surveillance interval recommendations based on the colonoscopy and histology report data you provide.")
 st.write("Please enter the colonoscopy report and the associated histology report into the text box below.")
+if 'report_input' not in st.session_state:
+    st.session_state.report_input = ''
 
-user_input = st.text_input("Enter colonoscopy and histology reports as single text input here:")
+user_input = st.text_input("Enter colonoscopy and histology reports as single text input here:",
+                           key = 'report_input',
+                           value = st.session_state.report_input)
+                           
+def clear_text():
+    st.session_state.report_input = ''
 
 if st.button("Get Recommendation"):
     if user_input.strip() == '':
@@ -38,4 +45,10 @@ if st.button("Get Recommendation"):
                 recommendation = output['recommendation']
             except Exception as e:
                 st.error(f'An error occurred: {e}')
-        st.write(f'Based on the data provided, the recommended follow-up interval is: {recommendation['follow_up']} years and the reason is: {recommendation['reason']}')    
+    if recommendation['follow_up'] == 20:
+        st.write("Based on the data provided, the patient has aged out of surveillance colonoscopy recommendations.")
+    else:
+        st.write(f"Based on the data provided, the recommended follow-up interval is: {recommendation['follow_up']} years and the reason is: {recommendation['reason']}")    
+    st.write(f"Full JSON Summary Output: {output['user_input']}")
+
+st.button('Clear Text', on_click = clear_text)
