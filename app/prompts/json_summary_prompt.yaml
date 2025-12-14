@@ -9,7 +9,7 @@ prompt:
       - include patient's name
       - include the patient's NHI 
       - for patient's age, only include the year and omit the month.
-      - Only populate the indication field if the indication is serrated polyposis syndrome.  Otherwise, leave it blank
+      - Populate the indication field with sps if the indication is serrated polyposis syndrome.  If the indication is either Crohn's disease or ulcerative colitis, use ibd as the indication
       - dates of the procedure written in the format of YYYY-MM-DD.
       - if the cecum was reached.  This should be a binary outcome as either yes or no
       - The Boston Bowel Prep Score - an integer between 0 and 9 representing the total score and then individual scores for each of the segments right colon, transverse colon and left colon

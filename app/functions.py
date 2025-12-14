@@ -103,7 +103,8 @@ rules_dict = {
     'rule_18': 'No polyps',
     'rule_19': 'No criteria met, needs human review',
     'rule_20': 'Patient aged out',
-    'rule_21': 'Incomplete/piecemeal resection or incomplete retrieval'
+    'rule_21': 'Incomplete/piecemeal resection or incomplete retrieval',
+    'rule_22': 'IBD',
 }
 
 
@@ -166,6 +167,8 @@ def triage(data: dict):
     #incomplete resection or retrieval
     elif incomplete_resection == True or incomplete_retrieval == True:
         return {'follow_up': 0, 'rule': 'rule_21', 'reason': 'Incomplete/piecemeal resection or incomplete retrieval'}
+    elif indication == 'ibd':
+        return {'follow_up': 0, 'rule': 'rule_22', 'reason': 'IBD'}
  
     #3 years
     elif max_ssl >=10:
