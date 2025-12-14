@@ -10,6 +10,7 @@ prompt:
       - include the patient's NHI 
       - for patient's age, only include the year and omit the month.
       - Populate the indication field with sps if the indication is serrated polyposis syndrome.  If the indication is either Crohn's disease or ulcerative colitis, use ibd as the indication
+      - Additional possible indications include family history category 1, 2 or 3.  If the indication is family history but the category is not specified, use family_history_unknown as the indication.  Other possible indications include positive_faecal_immunochemical_test, anaemia, rectal_bleeding, change_in_bowel_habit, abdominal_pain, weight_loss, surveillance_for_previous_polyps, screening, other or unknown
       - dates of the procedure written in the format of YYYY-MM-DD.
       - if the cecum was reached.  This should be a binary outcome as either yes or no
       - The Boston Bowel Prep Score - an integer between 0 and 9 representing the total score and then individual scores for each of the segments right colon, transverse colon and left colon
@@ -27,7 +28,7 @@ prompt:
       {"patient_name": "",
       "patient_NHI": "",
       "patient_age": 0,
-      "indication": "sps or leave it blank"
+      "indication": "sps, ibd, family_history_category_1, family_history_category_2, family_history_category_3, family_history_unknown"
       
           "colonoscopy": [
 
