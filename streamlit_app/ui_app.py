@@ -44,10 +44,13 @@ if st.button("Get Recommendation"):
             try:
                 output = asyncio.run(send_request(user_input, local_url))
                 recommendation = output['recommendation']
+
             except Exception as e:
                 st.error(f'An error occurred: {e}')
-    if recommendation['follow_up'] == 20:
+    if recommendation['rule'] == 'rule_20':
         st.write("Based on the data provided, the patient has aged out of surveillance colonoscopy recommendations.")
+    elif recommendation['rule'] == 'rule_23':
+        st.write("Based on the data provided, the patient is discharged from surveillance colonoscopy due to a normal colonoscopy and family history category 1 or 2")
     else:
         st.write(f"Based on the data provided, the recommended follow-up interval is: {recommendation['follow_up']} years and the reason is: {recommendation['reason']}")    
     st.write(f"Full JSON Summary Output: {output['user_input']}")

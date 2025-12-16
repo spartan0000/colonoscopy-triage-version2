@@ -10,6 +10,10 @@ from pathlib import Path
 import asyncio
 import requests
 
+import hmac
+import hashlib
+import base64
+
 import random
 
 import logging
@@ -23,6 +27,7 @@ load_dotenv()
 BASE_PATH = Path(__file__).parent.parent
 PROMPT_PATH = BASE_PATH / 'app' / 'prompts'
 DATA_PATH = BASE_PATH / 'data' / 'sample_reports'
+KEY = base64.b64decode(os.getenv('HMAC_KEY'))
 
 
 async def format_query_json(user_query: str) -> dict: 
@@ -82,6 +87,14 @@ async def send_request(report_text: str, api_url: str):
     else:
         raise Exception(f'API request failed with status code {response.status_code}: {response.text}')
 
+#keyed hashing function for deidentification
+
+def pseudonymize(identifier: str, key: bytes = KEY, length: int = 20) -> str:
+
+    h = hmac.new(key, identifier.encode('utf-8'), hashlib.sha256).digest() 
+    return base64.b32encode(h).decode('ascii')[:length] #takes h which is bytes and encodes to base32 then decodes to ascii 
+
+
 rules_dict = {
     'rule_1': 'Cecum not reached',
     'rule_2': 'Inadequate prep',
@@ -105,6 +118,7 @@ rules_dict = {
     'rule_20': 'Patient aged out',
     'rule_21': 'Incomplete/piecemeal resection or incomplete retrieval',
     'rule_22': 'IBD',
+    'rule_23': 'Discharged due to no polyps and family history category 1 or 2'
 }
 
 
@@ -171,22 +185,21 @@ def triage(data: dict):
         return {'follow_up': 0, 'rule': 'rule_22', 'reason': 'IBD'}
  
     #3 years
+    ###These are high risk polyps - triaging rules vary somewhat for these regarding the age out criteria
     elif max_ssl >=10:
-        
         return {'follow_up': 3, 'rule': 'rule_5', 'reason': 'SSL >= 10mm'}
     
     elif dysplastic_ssl == True:
-        
         return {'follow_up': 3, 'rule': 'rule_6', 'reason': 'SSL with dysplasia'}
+    
     elif max_adenoma >= 10:
-        
         return {'follow_up': 3, 'rule': 'rule_7', 'reason': 'Adenoma >= 10mm'}
     elif tva == True:
-        
         return {'follow_up': 3, 'rule': 'rule_8', 'reason': 'Tubulovillous or villous adenoma'}
     elif hgd_adenoma == True:
-        
         return {'follow_up': 3, 'rule': 'rule_9', 'reason': 'Adenoma with HGD'}
+    
+    ###These are other indications for 3 year follow up
     elif n_adenoma == 0 and n_ssl >= 5 and max_ssl < 10:
         return {'follow_up': 3, 'rule': 'rule_10', 'reason': '5 or more SSL all less than 10mm, no other polyps, no high risk features'}
     elif n_ssl == 0 and 5 <= n_adenoma <= 9 and max_adenoma < 10 and hgd_adenoma == False:
@@ -216,6 +229,14 @@ def triage(data: dict):
     elif n_ssl == 0 and n_adenoma == 0:
         return {'follow_up': 10, 'rule': 'rule_18', 'reason': 'No polyps'}
     
+    ###Add discharge criteria here?
+
+    #if no polyps and family history category 1 or 2
+    if not data['colonoscopy'][0]['polyps'] and indication in ['family_history_category_1', 'family_history_category_2']:
+        return {'follow_up': 20, 'rule': 'rule_23', 'reason': 'Discharged due to no polyps and family history category 1 or 2'}
+    
+
+    
     #if no criteria met, refer for human review
     else:
         return {'follow_up': 0, 'rule': 'rule_19', 'reason': 'No criteria met, needs human review'}
@@ -227,7 +248,7 @@ def age_out(data: dict, outcome: dict):
     rule = outcome['rule']
     if rule in ['rule_5', 'rule_6', 'rule_7', 'rule_8', 'rule_9'] and patient_age <= 75: #high risk polyps can rescope up to age 78
         return outcome
-    if follow_up is not None and follow_up != 0 and follow_up + patient_age > 75:
+    elif follow_up is not None and follow_up != 0 and follow_up + patient_age > 75:
         return {'follow_up': 20, 'rule': 'rule_20', 'reason': 'Patient aged out'}
     
     else:
