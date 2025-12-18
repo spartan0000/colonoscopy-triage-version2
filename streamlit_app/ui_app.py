@@ -42,7 +42,7 @@ if st.button("Get Recommendation"):
     else:
         with st.spinner('Processing your request...'):
             try:
-                output = asyncio.run(send_request(user_input, local_url))
+                output = asyncio.run(send_request(user_input, azure_url))
                 recommendation = output['recommendation']
 
             except Exception as e:
