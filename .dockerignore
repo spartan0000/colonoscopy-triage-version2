@@ -19,7 +19,7 @@ tests/
 *.parquet
 *.bin
 
-# Virtual environments
+
 .venv/
 *.env
 env/

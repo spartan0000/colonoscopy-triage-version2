@@ -1,0 +1,17 @@
+services:
+  api:
+    image: ${API_IMAGE}
+    container_name: fastapi_app
+    ports:
+      - "8000"
+    
+  
+  streamlit:
+    image: ${STREAMLIT_IMAGE}
+    container_name: streamlit_app
+    ports:
+      - "8501"
+    
+    depends_on:
+      - api
+    
