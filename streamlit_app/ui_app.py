@@ -41,6 +41,15 @@ async def send_request(report_text: str, api_url: str):
         return response.json()
     else:
         raise Exception(f'API request failed with status code {response.status_code}: {response.text}')
+    
+def sync_send_request(report_text: str, api_url: str):
+    data = {'user_query': report_text}
+    response = requests.post(api_url, json = data)
+    if response.status_code == 200:
+        return response.json()
+    else:
+        raise Exception(f'API request failed with status code {response.status_code}: {response.text}')
+
 
 st.title("Colonoscopy Surveillance Triage Tool")
 st.write("This tool provides surveillance interval recommendations based on the colonoscopy and histology report data you provide.")
@@ -56,23 +65,39 @@ user_input = st.text_area("Enter colonoscopy and histology reports as single tex
 def clear_text():
     st.session_state.report_input = ''
 
+async def get_recommendation(user_input, API_URL):
+    return await send_request(user_input, API_URL)
+
+def run_async(func, *args):
+    try:
+        loop = asyncio.get_event_loop()
+    except RuntimeError:
+        return asyncio.run(func(*args))
+    else:
+        return loop.run_until_complete(func(*args))
+
 if st.button("Get Recommendation"):
+
+    recommendation = None
+    output = None
     if user_input.strip() == '':
         st.error('Please enter a valid colonoscopy and histology report.')
     else:
         with st.spinner('Processing your request...'):
             try:
-                output = asyncio.run(send_request(user_input, API_URL))
+                output = sync_send_request(user_input, API_URL)
+                
                 recommendation = output['recommendation']
 
             except Exception as e:
                 st.error(f'An error occurred: {e}')
-    if recommendation['rule'] == 'rule_20':
-        st.write("Based on the data provided, the patient has aged out of surveillance colonoscopy recommendations.")
-    elif recommendation['rule'] == 'rule_23':
-        st.write("Based on the data provided, the patient is discharged from surveillance colonoscopy due to a normal colonoscopy and family history category 1 or 2")
-    else:
-        st.write(f"Based on the data provided, the recommended follow-up interval is: {recommendation['follow_up']} years and the reason is: {recommendation['reason']}")    
-    st.write(f"Full JSON Summary Output: {output['user_input']}")
+    if recommendation is not None:
+        if recommendation['rule'] == 'rule_20':
+            st.write("Based on the data provided, the patient has aged out of surveillance colonoscopy recommendations.")
+        elif recommendation['rule'] == 'rule_23':
+            st.write("Based on the data provided, the patient is discharged from surveillance colonoscopy due to a normal colonoscopy and family history category 1 or 2")
+        else:
+            st.write(f"Based on the data provided, the recommended follow-up interval is: {recommendation['follow_up']} years and the reason is: {recommendation['reason']}")    
+        st.write(f"Full JSON Summary Output: {output['user_input']}")
 
 st.button('Clear Text', on_click = clear_text)
