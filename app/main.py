@@ -1,5 +1,6 @@
 import os
 from fastapi import FastAPI, Depends, HTTPException, status, Header
+from fastapi.middleware.cors import CORSMiddleware
 import json
 from dotenv import load_dotenv
 import asyncio
@@ -16,7 +17,13 @@ logger = setup_logging()
 
 app = FastAPI(title = 'Colonoscopy triage API')
 
-
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins = ['*'],
+    allow_credentials = True,
+    allow_methods = ['*'],
+    allow_headers = ['*']
+)
 def verify_api_key(x_api_key: str = Header(...)):
     if x_api_key != os.getenv('MY_API_KEY'):
         raise HTTPException(
