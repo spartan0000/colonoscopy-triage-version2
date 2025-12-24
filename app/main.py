@@ -19,23 +19,24 @@ app = FastAPI(title = 'Colonoscopy triage API')
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins = ['*'],
+    allow_origins = ["http://localhost:5173",
+                     "http://127.0.0.1:5173"],
     allow_credentials = True,
-    allow_methods = ['*'],
-    allow_headers = ['*']
+    allow_methods = ["*"],
+    allow_headers = ["*"]
 )
-def verify_api_key(x_api_key: str = Header(...)):
-    if x_api_key != os.getenv('MY_API_KEY'):
-        raise HTTPException(
-            status_code = status.HTTP_401_UNAUTHORIZED,
-            detail = 'Invalid or missing API key'
-        )
+# def verify_api_key(x_api_key: str = Header(...)):
+#     if x_api_key != os.getenv('MY_API_KEY'):
+#         raise HTTPException(
+#             status_code = status.HTTP_401_UNAUTHORIZED,
+#             detail = 'Invalid or missing API key'
+#         )
 
 class UserInput(BaseModel):
     user_query: str
 
 
-@app.post('/triage', dependencies = [Depends(verify_api_key)])
+@app.post('/triage')
 async def recommend(request: UserInput):
     user_query = request.user_query
     json_summary = await format_query_json(user_query)
