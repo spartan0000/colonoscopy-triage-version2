@@ -20,8 +20,17 @@ Key principles:
 
 ### 3. Architecture:
 Workflow:
-
-Input Text -> LLM Parser -> Rules Engine -> Output/Recommendation/Human Review Flags
+```mermaid
+flowchart TD
+    A[Unstructured text] --> B[LLM Parses Text] 
+    B --> C[Structured JSON Output]
+    C --> D[Rules Engine]
+    D --> E{Routine Case?}
+    E -- Yes --> F[Automated Recommendation]
+    E -- No --> G[Flag for Human Review]
+    F --> H[Log Outputs]
+    G --> H
+```
 
 Stack:
 * Python, FastAPI
