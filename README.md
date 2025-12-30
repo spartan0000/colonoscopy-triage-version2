@@ -21,32 +21,26 @@ Key principles:
 ### 3. Architecture:
 Workflow:
 
-```mermaid
-graph TD;
-    A[Unstructured Clinical Text] --> B[LLM Text Parsing];
-    B --> C[Rules Engine]
-    C --> 
+Input Text -> LLM Parser -> Rules Engine -> Output/Recommendation/Human Review Flags
 
+Stack:
+* Python, FastAPI
+* Docker for containerization and deployment
+* Hosted on Azure
+* Basic UI (React/Typescript) in a separate repo for manual data entry
 
+### 4. Impact:
+* Reduces manual copying of patient data on paper forms
+* Reduces time spent by physicians and nurses on routine cases reserving this valuable resource for complex cases
+* Standardizes triaging process and clinical workflow
 
-```
-### Backend
-* FastAPI with a single endpoint /triage that runs the logic of application
+### 5. How to run:
+* Clone the repo
+* Build docker container
+* Configure environment variables -
+    - OpenAI API key - to initialize the chat client (can be OpenAI or AzureOpenAI)
+    - OpenAI API version
+    - OpenAI API endpoint
+    - HMAC key (keyed hashing for deidentification)
 
-### Frontend
-* Streamlit - a very simple UI where a user can cut and paste their data into a window and get a recommendedation
-
-### Logging
-* Inputs to the model and outputs logged to file and also to console
-
-### Docker
-* Dockerfiles for FastAPI and Streamlit
-* Orchestration using Docker compose
-
-### Next steps
-* Working on deidentification functionality for use with real world data
-* Identifiers hashed with keyed hashing vs. using encryption such as AES-256
-
-
-    
 
