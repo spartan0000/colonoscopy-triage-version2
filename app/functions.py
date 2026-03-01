@@ -21,6 +21,7 @@ from logging.handlers import RotatingFileHandler
 from datetime import datetime
 
 from app.clients import chat_client, hnz_client
+from app.models.colonoscopy import ColonoscopySummary
 
 load_dotenv()
 
@@ -28,6 +29,24 @@ BASE_PATH = Path(__file__).parent.parent
 PROMPT_PATH = BASE_PATH / 'app' / 'prompts'
 DATA_PATH = BASE_PATH / 'data' / 'sample_reports'
 KEY = base64.b64decode(os.getenv('HMAC_KEY'))
+
+def load_prompt(prompt_file:str) -> str:
+    prompt_path = PROMPT_PATH / prompt_file
+    if not prompt_path.exists():
+        raise FileNotFoundError(f"Prompt file not found: {prompt_path}")
+    
+    with open(prompt_path, 'r') as f:
+        try:
+            config = yaml.safe_load(f)
+        except yaml.YAMLError as e:
+            print(f"Error loading YAML file: {e}")
+        system_prompt = f"{config['prompt']['content']}"
+        rules = config['prompt'].get('rules')
+        if rules:
+            rules_text = "\n Rules: \n" + "\n".join(f'- {rule}' for rule in rules)
+            system_prompt = f'{system_prompt}\n{rules_text}'
+        return system_prompt
+
 
 
 async def format_query_json(user_query: str) -> dict: 
@@ -46,9 +65,9 @@ async def format_query_json(user_query: str) -> dict:
 
     user_prompt = f'Please format this medical text into structured JSON output - {user_query}'
 
-    response1 = await hnz_client.responses.create(
-        model = 'gpt-4-1',
-        text = {'format': {'type': 'json_object'}},
+    response1 = await chat_client.responses.parse(
+        model = 'gpt-5-mini',
+        
         input = [
             {
                 'role':'system',
@@ -59,16 +78,20 @@ async def format_query_json(user_query: str) -> dict:
                 'content': user_prompt,
             }
         ],
+        text_format = ColonoscopySummary
         
 
     )
 
-    try:
-        raw_output = response1.output_text
-        result_json = json.loads(raw_output)
-        return result_json
-    except json.JSONDecodeError:
-        return {'error': 'Failed to parse JSON', 'raw_output': response1.output_text}
+    output = response1.output_parsed.model_dump()
+    return output
+
+    # try:
+    #     raw_output = response1.output_text
+    #     result_json = json.loads(raw_output)
+    #     return result_json
+    # except json.JSONDecodeError:
+    #     return {'error': 'Failed to parse JSON', 'raw_output': response1.output_text}
     
 async def send_request(report_text: str, api_url: str):
     '''

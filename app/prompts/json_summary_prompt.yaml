@@ -1,60 +1,100 @@
 name: json_summarize_input_text
-version: 2.0
-description: Generate a JSON summary of the provided intput text.
+version: 2.2
+description: Generate a JSON summary of colonoscopy procedures and polyp pathology using a Pydantic model.
+
+pydantic_model: |
+  from typing import List, Literal
+  from pydantic import BaseModel, Field
+  from typing_extensions import Annotated
+
+  class Polyp(BaseModel):
+      location: Literal[
+          "cecum",
+          "ascending_colon",
+          "transverse_colon",
+          "descending_colon",
+          "sigmoid_colon",
+          "rectum"
+      ]
+      size: Annotated[int, Field(ge=0)]  # millimeters
+      type: Literal[
+          "adenoma",
+          "tubulovillous_or_villous_adenoma",
+          "sessile_serrated_polyp",
+          "hyperplastic_polyp",
+          "normal_colonic_mucosa"
+      ]
+      dysplasia: Literal["none", "low_grade", "high_grade"]
+      resection: Literal["complete", "piecemeal", "not_resected", "unknown"]
+      retrieval: Literal["complete", "incomplete", "unknown"]
+
+  class BostonBowelPrepScore(BaseModel):
+      total: Annotated[int, Field(ge=0, le=9)]
+      right: Annotated[int, Field(ge=0, le=3)]
+      transverse: Annotated[int, Field(ge=0, le=3)]
+      left: Annotated[int, Field(ge=0, le=3)]
+
+  class Colonoscopy(BaseModel):
+      date: str  # YYYY-MM-DD
+      number_of_polyps: Annotated[int, Field(ge=0)]
+      cecum_reached: Literal["yes", "no"]
+      bostonBowelPrepScore: BostonBowelPrepScore
+      polyps: List[Polyp]
+
+  class ColonoscopySummary(BaseModel):
+      patient_name: str
+      patient_NHI: str
+      patient_age: Annotated[int, Field(ge=0)]
+      indication: Literal[
+          "sps",
+          "ibd",
+          "family_history_category_1",
+          "family_history_category_2",
+          "family_history_category_3",
+          "family_history_unknown",
+          "positive_faecal_immunochemical_test",
+          "anaemia",
+          "rectal_bleeding",
+          "change_in_bowel_habit",
+          "abdominal_pain",
+          "weight_loss",
+          "surveillance_for_previous_polyps",
+          "screening",
+          "other",
+          "unknown"
+      ]
+      colonoscopy: List[Colonoscopy]
+
 prompt:
-    role: system
-    content: |
-      summarize the user input that includes medical data on a person's history of colonoscopy procedures and the pathology reports from the polyps that were removed.
-      key information includes the following:
-      - include patient's name
-      - include the patient's NHI 
-      - for patient's age, only include the year and omit the month.
-      - Populate the indication field with sps if the indication is serrated polyposis syndrome.  If the indication is either Crohn's disease or ulcerative colitis, use ibd as the indication
-      - Additional possible indications include family history category 1, 2 or 3.  If the indication is family history but the category is not specified, use family_history_unknown as the indication.  Other possible indications include positive_faecal_immunochemical_test, anaemia, rectal_bleeding, change_in_bowel_habit, abdominal_pain, weight_loss, surveillance_for_previous_polyps, screening, other or unknown
-      - dates of the procedure written in the format of YYYY-MM-DD.
-      - if the cecum was reached.  This should be a binary outcome as either yes or no
-      - The Boston Bowel Prep Score - an integer between 0 and 9 representing the total score and then individual scores for each of the segments right colon, transverse colon and left colon
+  role: system
+  content: |
+    Summarize input containing colonoscopy procedures and polyp pathology using the Pydantic model defined above. Extract:
 
-      - for each polyp that was removed, include the following information in a separate dictionary:
-      - location of the polyp - possible locations include cecum, ascending colon, transverse colon, descending colon, sigmoid colon, rectum
-      - the size of the polyp which is generally reported in millimeters - less than 10mm or greater than or equal to 10mm is a useful cutoff
-      - the histology of the polyp which should be one of the following: adenoma, tubulovillous or villous adenoma, sessile serrated polyp, hyperplastic polyp  
-      - presence of dysplasia in the polyp - none, low grade, or high grade
-      - the resection status of the polyp - complete, piecemeal, not resected or unknown
-      - the retrieval status of the polyp - complete, incomplete, or unknown
-      - all of the dictionaries for the polyps should be included in a list under the key "polyps" for each colonoscopy procedure
-      format the output as ***JSON output*** with the following schema for each colonoscopy procedure.  
+    Patient info:
+      - patient_name
+      - patient_NHI
+      - patient_age (year only)
 
-      {"patient_name": "",
-      "patient_NHI": "",
-      "patient_age": 0,
-      "indication": "sps, ibd, family_history_category_1, family_history_category_2, family_history_category_3, family_history_unknown"
-      
-          "colonoscopy": [
+    Indication mapping:
+      - sps → serrated polyposis syndrome
+      - ibd → Crohn's disease or ulcerative colitis
+      - family_history_category_1 / 2 / 3 → family history with category
+      - family_history_unknown → family history unspecified
+      - Other: positive_faecal_immunochemical_test, anaemia, rectal_bleeding, change_in_bowel_habit, abdominal_pain, weight_loss, surveillance_for_previous_polyps, screening, other, unknown
 
-            {
-              "date": "year-month-day",
-              "number_of_polyps": 0,
-              "cecum_reached": "yes" or "no",
-              "bostonBowelPrepScore": {"total": integer representing the total score,
-                                        "right": integer representing the score for the right colon,
-                                        "transverse": integer representing the score for the transverse colon,
-                                        "left": integer representing the score for the left colon
-                                        },
-              "polyps": [
-              {
-                "location": "cecum or ascending_colon or transverse_colon or descending_colon or sigmoid_colon or rectum,
-                "size": integer in millimeters,
-                "type": "adenoma or tubulovillous_or_villous_adenoma or sessile_serrated_polyp or hyperplastic_polyp or normal_colonic_mucosa",
-                "dysplasia": "none or low_grade or high_grade",
-                "resection": "complete or piecemeal or not_resected or unknown",
-                "retrieval": "complete or incomplete or unknown",
-              }
-            ]
-          }
-        ]
-      }                    
-      make sure the JSON is properly formatted and can be parsed by a standard JSON parser.
-    rules: Do not make any clinical diagnoses or suggestions
-    metadata: 
-      updated: 2025-12-02
+    Colonoscopy details:
+      - date: YYYY-MM-DD
+      - number_of_polyps
+      - cecum_reached: yes/no
+      - bostonBowelPrepScore: total 0-9, right 0-3, transverse 0-3, left 0-3
+      - polyps: location, size (mm), type, dysplasia, resection, retrieval
+
+    Output:
+      - Produce JSON parsable according to the Pydantic model
+      - Include all polyps even if some data is missing
+
+  rules:
+    - Do not make any clinical diagnoses or suggestions
+    - Ensure JSON is fully valid
+metadata:
+  updated: 2026-03-01
