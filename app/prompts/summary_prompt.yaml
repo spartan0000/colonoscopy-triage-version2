@@ -13,3 +13,4 @@ prompt:
       - DO NOT make any clinical diagnoses or recommendations.
     metadata:
       updated: 2025-11-13
+      notes: This prompt is no longer used or needed and is kept here for reference
