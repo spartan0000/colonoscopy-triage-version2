@@ -1,4 +1,4 @@
-Copyright © 2024 Lone Star Surgical, LLC. All rights reserved.
+Copyright © 2025 Lone Star Surgical, LLC. All rights reserved.
 
 This software is proprietary and confidential. Unauthorized copying, modification, or distribution is prohibited.
 
