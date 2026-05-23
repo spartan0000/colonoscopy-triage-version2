@@ -30,6 +30,12 @@ PROMPT_PATH = BASE_PATH / 'app' / 'prompts'
 DATA_PATH = BASE_PATH / 'data' / 'sample_reports'
 KEY = base64.b64decode(os.getenv('HMAC_KEY'))
 
+deployment = os.getenv('DEPLOYMENT_NAME')
+if not deployment or deployment.strip() == '':
+    raise ValueError("AzureOpenAI deployment name is missing or empty")
+
+
+
 def load_prompt(prompt_file:str) -> str:
     prompt_path = PROMPT_PATH / prompt_file
     if not prompt_path.exists():
@@ -65,8 +71,8 @@ async def format_query_json(user_query: str) -> dict:
 
     user_prompt = f'Please format this medical text into structured JSON output - {user_query}'
 
-    response1 = await chat_client.responses.parse(
-        model = 'gpt-5-mini',
+    response1 = await hnz_client.responses.parse(
+        model = deployment,
         
         input = [
             {
@@ -146,6 +152,7 @@ rules_dict = {
 
 
 
+#need to fix this by adding handling of empty inputs and other edge cases similar to that
 
 def triage(data: dict):
     n_adenoma = 0
