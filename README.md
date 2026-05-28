@@ -1,6 +1,3 @@
-Copyright © 2025 Lone Star Surgical, LLC. All rights reserved.
-
-This software is proprietary and confidential. Unauthorized copying, modification, or distribution is prohibited.
 
 ### Title: Colonoscopy Surveillance Triage Automation Tool
 
