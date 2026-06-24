@@ -16,6 +16,12 @@ import base64
 
 import random
 
+
+from transformers import pipeline
+import torch
+import re
+
+
 import logging
 from logging.handlers import RotatingFileHandler
 from datetime import datetime
@@ -122,6 +128,22 @@ def pseudonymize(identifier: str, key: bytes = KEY, length: int = 20) -> str:
 
     h = hmac.new(key, identifier.encode('utf-8'), hashlib.sha256).digest() 
     return base64.b32encode(h).decode('ascii')[:length] #takes h which is bytes and encodes to base32 then decodes to ascii 
+
+#trying an on device model to redact PII
+ner = pipeline("ner", model = "OpenMed/OpenMed-PII-BioClinicalModern-Base-149M-v1", aggregation_strategy="simple")
+
+def redact_pii(user_query: str) -> str:
+    entities = ner(user_query)
+
+    sorted_entities = sorted(entities, key = lambda x: x['start'], reverse = True)
+
+    redacted = user_query
+    nhi_pattern = r'\b[A-Z]{3}[0-9]{4}\b'
+    redacted = re.sub(nhi_pattern, '[NHI]', redacted)
+
+    for entity in sorted_entities:
+        redacted = redacted[:entity['start']] + f"{entity['group']}" + redacted[entity['end']:]
+    return redacted
 
 
 rules_dict = {
@@ -289,7 +311,6 @@ def age_out(data: dict, outcome: dict):
 def triage_with_age_out(data, outcome):
     outcome = triage(data)
     return age_out(data, outcome)
-
 
 
 
