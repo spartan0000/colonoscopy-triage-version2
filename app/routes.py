@@ -17,6 +17,7 @@ class UserInput(BaseModel):
 @router.post("/triage")
 async def recommend(request: UserInput):
     user_query = request.user_query
+    #redacted_user_query = functions.redact_pii(user_query)
     json_summary = await functions.format_query_json(user_query)
     recommendation = functions.triage(json_summary)
     final = functions.triage_with_age_out(json_summary, recommendation)
