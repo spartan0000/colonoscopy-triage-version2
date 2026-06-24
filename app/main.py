@@ -13,6 +13,8 @@ load_dotenv()
 from app.functions import format_query_json, triage, age_out, triage_with_age_out
 from app.logging_config import setup_logging
 
+from app import routes
+
 logger = setup_logging()
 
 app = FastAPI(title = 'Colonoscopy triage API')
@@ -37,25 +39,7 @@ class UserInput(BaseModel):
     user_query: str
 
 
-@app.post('/triage')
-async def recommend(request: UserInput):
-    user_query = request.user_query
-    json_summary = await format_query_json(user_query)
-    recommendation = triage(json_summary)
-    final = triage_with_age_out(json_summary, recommendation)
-
-    logger.info("User input received and recommendation generated", 
-                extra = {
-                    'extra_data': {
-                        'user_input': user_query,
-                        'json_summary': json_summary,
-                        'recommendation': recommendation
-                    }
-                }
-
-    )
-
-    return {'user_input': json_summary, 'recommendation': final}
+app.include_router(routes.router)
 
 
     
