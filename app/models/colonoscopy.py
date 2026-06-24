@@ -11,7 +11,8 @@ class Polyp(BaseModel):
         "splenic_flexure",
         "descending_colon",
         "sigmoid_colon",
-        "rectum"
+        "rectum",
+        "anus"
     ]
     size: Annotated[int, Field(ge=0)]  # size in millimeters
     type: Literal[
@@ -34,7 +35,7 @@ class BostonBowelPrepScore(BaseModel):
 class Colonoscopy(BaseModel):
     date: str  # YYYY-MM-DD format
     number_of_polyps: Annotated[int, Field(ge=0)]
-    cecum_reached: Literal["yes", "no"]
+    cecum_reached: bool
     bostonBowelPrepScore: BostonBowelPrepScore
     polyps: List[Polyp]
 
