@@ -23,6 +23,7 @@ import re
 
 
 import logging
+logger = logging.getLogger(__name__)
 from logging.handlers import RotatingFileHandler
 from datetime import datetime
 
@@ -76,27 +77,33 @@ async def format_query_json(user_query: str) -> dict:
         
 
     user_prompt = f'Please format this medical text into structured JSON output - {user_query}'
+    try:
+        response1 = await hnz_client.responses.parse(
+            model = deployment,
+            
+            input = [
+                {
+                    'role':'system',
+                    'content': system_prompt,
+                },
+                {
+                    'role': 'user',
+                    'content': user_prompt,
+                }
+            ],
+            text_format = ColonoscopySummary
+            
 
-    response1 = await hnz_client.responses.parse(
-        model = deployment,
-        
-        input = [
-            {
-                'role':'system',
-                'content': system_prompt,
-            },
-            {
-                'role': 'user',
-                'content': user_prompt,
-            }
-        ],
-        text_format = ColonoscopySummary
-        
+        )
 
-    )
+        if response1.output_parsed is None:
+            return empty_summary()
 
-    output = response1.output_parsed.model_dump()
-    return output
+        output = response1.output_parsed.model_dump()
+        return output
+    except Exception as e:
+        logger.error(e)
+        return empty_summary()
 
     # try:
     #     raw_output = response1.output_text
@@ -144,6 +151,11 @@ def redact_pii(user_query: str) -> str:
     for entity in sorted_entities:
         redacted = redacted[:entity['start']] + f"{entity['group']}" + redacted[entity['end']:]
     return redacted
+
+def empty_summary():
+    return ColonoscopySummary(
+        extraction_successful = False
+    )
 
 
 rules_dict = {
