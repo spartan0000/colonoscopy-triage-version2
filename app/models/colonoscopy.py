@@ -13,36 +13,37 @@ class Polyp(BaseModel):
         "sigmoid_colon",
         "rectum",
         "anus"
-    ]
-    size: Annotated[int, Field(ge=0)]  # size in millimeters
+    ] | None = None
+    size: Annotated[int | None, Field(ge=0)] = None # size in millimeters
     type: Literal[
         "adenoma",
         "tubulovillous_or_villous_adenoma",
         "sessile_serrated_polyp",
         "hyperplastic_polyp",
         "normal_colonic_mucosa"
-    ]
-    dysplasia: Literal["none", "low_grade", "high_grade"]
-    resection: Literal["complete", "piecemeal", "not_resected", "unknown"]
-    retrieval: Literal["complete", "incomplete", "unknown"]
+    ] | None = None
+    dysplasia: Literal["none", "low_grade", "high_grade"] | None = None
+    resection: Literal["complete", "piecemeal", "not_resected", "unknown"] | None = None
+    retrieval: Literal["complete", "incomplete", "unknown"] | None = None
 
 class BostonBowelPrepScore(BaseModel):
-    total: Annotated[int, Field(ge=0, le=9)]
-    right: Annotated[int, Field(ge=0, le=3)]
-    transverse: Annotated[int, Field(ge=0, le=3)]
-    left: Annotated[int, Field(ge=0, le=3)]
+    total: Annotated[int | None, Field(ge=0, le=9)] = None
+    right: Annotated[int | None, Field(ge=0, le=3)] = None
+    transverse: Annotated[int | None, Field(ge=0, le=3)] = None
+    left: Annotated[int | None, Field(ge=0, le=3)] = None
 
 class Colonoscopy(BaseModel):
-    date: str  # YYYY-MM-DD format
-    number_of_polyps: Annotated[int, Field(ge=0)]
-    cecum_reached: bool
-    bostonBowelPrepScore: BostonBowelPrepScore
-    polyps: List[Polyp]
+    date: str | None = None  # YYYY-MM-DD format
+    number_of_polyps: Annotated[int | None, Field(ge=0)] = None
+    cecum_reached: bool | None = None
+    bostonBowelPrepScore: BostonBowelPrepScore | None = None
+    polyps: List[Polyp] = Field(default_factory=list)
 
 class ColonoscopySummary(BaseModel):
-    patient_name: str
-    patient_NHI: str
-    patient_age: Annotated[int, Field(ge=0)]
+    extraction_successful: bool = True
+    patient_name: str | None = None
+    patient_NHI: str | None = None
+    patient_age: Annotated[int | None, Field(ge=0)] = None
     indication: Literal[
         "sps",
         "ibd",
@@ -60,5 +61,5 @@ class ColonoscopySummary(BaseModel):
         "screening",
         "other",
         "unknown"
-    ]
-    colonoscopy: List[Colonoscopy]
+    ] = "unknown"
+    colonoscopy: List[Colonoscopy] = Field(default_factory=list)

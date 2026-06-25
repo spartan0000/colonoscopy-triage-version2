@@ -14,7 +14,7 @@ def client():
         yield client
 
 @pytest.fixture(scope = 'function')
-def test_case():
+def test_case1():
     p = Polyp(location = 'cecum',
               dysplasia = 'low_grade',
               size = 3,
